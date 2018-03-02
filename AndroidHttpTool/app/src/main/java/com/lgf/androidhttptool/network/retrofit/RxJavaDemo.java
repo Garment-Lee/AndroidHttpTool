@@ -1,10 +1,13 @@
-package com.lgf.androidhttptool.network;
+package com.lgf.androidhttptool.network.retrofit;
 
 import com.lgf.androidhttptool.log.FLog;
+
+import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -16,21 +19,21 @@ import io.reactivex.schedulers.Schedulers;
  * Created by ligf on 2018/2/6.
  */
 
-public class RxJavaUtil {
+public class RxJavaDemo {
 
-    private static final String TAG = "RxJavaUtil";
+    private static final String TAG = "RxJavaDemo";
 
-    private static RxJavaUtil instance;
+    private static RxJavaDemo instance;
 
-    private RxJavaUtil() {
+    private RxJavaDemo() {
 
     }
 
-    public static RxJavaUtil getInstance() {
+    public static RxJavaDemo getInstance() {
         if (instance == null) {
-            synchronized (RxJavaUtil.class) {
+            synchronized (RxJavaDemo.class) {
                 if (instance == null) {
-                    instance = new RxJavaUtil();
+                    instance = new RxJavaDemo();
                 }
             }
         }
@@ -45,7 +48,7 @@ public class RxJavaUtil {
 
         @Override
         public void onNext(String value) {
-            FLog.i("AndroidHttpTool", "RxJavaUtil onNext value:" + value);
+            FLog.i("AndroidHttpTool", "RxJavaDemo onNext value:" + value);
         }
 
         @Override
@@ -59,10 +62,11 @@ public class RxJavaUtil {
         }
     };
 
-    Observable observable = Observable.create(new ObservableOnSubscribe() {
+    Observable<String> observable = Observable.create(new ObservableOnSubscribe<String>() {
         @Override
-        public void subscribe(ObservableEmitter e) throws Exception {
-            e.onNext("start to subscribe");
+        public void subscribe(ObservableEmitter<String> e) throws Exception {
+            e.onNext("begin to emit...");
+            e.onComplete();
         }
     });
 
@@ -74,7 +78,8 @@ public class RxJavaUtil {
      * use map to convert one event object
      */
     public void test2() {
-        observable.map(new Function<String, Integer>() {
+        observable
+                .map(new Function<String, Integer>() {
             @Override
             public Integer apply(String s) throws Exception {
                 return 1;
@@ -132,5 +137,14 @@ public class RxJavaUtil {
                 return Observable.fromArray(strings);
             }
         }).subscribe(observer);
+    }
+
+    public void test5(){
+        Observable<String> observable = Observable.defer(new Callable<ObservableSource<? extends String>>() {
+            @Override
+            public ObservableSource<? extends String> call() throws Exception {
+                return null;
+            }
+        });
     }
 }

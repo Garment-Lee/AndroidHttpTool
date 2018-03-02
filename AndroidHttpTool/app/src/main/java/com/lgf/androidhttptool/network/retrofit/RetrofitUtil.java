@@ -1,9 +1,10 @@
-package com.lgf.androidhttptool.network;
+package com.lgf.androidhttptool.network.retrofit;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.lgf.androidhttptool.log.FLog;
+import com.lgf.androidhttptool.network.AccountService;
 import com.lgf.androidhttptool.network.bean.ConfigFormBean;
 import com.lgf.androidhttptool.util.GlobalConstant;
 import com.lgf.androidhttptool.util.Md5Utils;
@@ -17,6 +18,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -61,25 +63,24 @@ public class RetrofitUtil {
 
     public void initRetrofit() {
         retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .client(myClient())
-                .addConverterFactory(GsonConverterFactory.create(myGson()))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .baseUrl(BASE_URL)  //设置基础url
+                .client(myClient())       //设置Http请求客户端
+                .addConverterFactory(GsonConverterFactory.create(myGson()))     //设置实体类的序列化和反序列化转换器
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())      //设置请求适配器，支持RxJava的Observable，Retrofit Service请求结果封装返回Observable对象
                 .build();
         accountService = retrofit.create(AccountService.class);
     }
 
     private OkHttpClient myClient() {
+        //声明日志类
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        //设定日志级别
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(httpLoggingInterceptor)     //添加日志拦截器，便于调试查看请求Url和请求参数，以及请求结果
                 .build();
-//        client.interceptors().add(new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                return null;
-//            }
-//        });
         return client;
     }
 
@@ -90,6 +91,10 @@ public class RetrofitUtil {
         return gson;
     }
 
+    /**
+     * Get请求，从服务器获取配置参数
+     * @param observer
+     */
     public void readConfigFromServer(Observer observer) {
         String sign = "";
         String formatUrl = "";
@@ -119,9 +124,6 @@ public class RetrofitUtil {
         map.put("rsformat", RSFORMAT + "");
         map.put("sign", sign);
 
-
-//        accountService.readConfigFromServer(map)
-//        accountService.readConfigFromServerV2(formatUrl)
         accountService.readConfigFromServerV3("http://st.careland.com.cn/tc/control_download.php", map)
                 .subscribeOn(Schedulers.io())    //subscribeOn:指定执行的线程
                 .map(new Function<ConfigFormBean, String>() {
@@ -151,15 +153,6 @@ public class RetrofitUtil {
 
                     }
                 });
-
-
-//                .flatMap(new Function<String, Observable<String>>() {
-//                    @Override
-//                    public Observable<String> apply(String s) throws Exception {
-//                        FLog.i("AndroidHttpTool", "RetrofitUtil readConfigFromServer s:" + s);
-//                        return Observable.just(s);
-//                    }
-//                }).subscribe(observer);
     }
 
 }

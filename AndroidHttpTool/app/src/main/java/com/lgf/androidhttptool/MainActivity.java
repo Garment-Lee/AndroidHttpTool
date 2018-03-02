@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.lgf.androidhttptool.log.FLog;
-import com.lgf.androidhttptool.network.RetrofitUtil;
-import com.lgf.androidhttptool.network.RxJavaUtil;
+import com.lgf.androidhttptool.network.retrofit.RetrofitUtil;
+import com.lgf.androidhttptool.network.retrofit.RxJavaDemo;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -27,10 +27,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void beginToTest(){
-        RxJavaUtil.getInstance().test1();
-        RxJavaUtil.getInstance().test2();
-        RxJavaUtil.getInstance().test3();
-        RxJavaUtil.getInstance().test4();
+        RxJavaDemo.getInstance().test1();
+        RxJavaDemo.getInstance().test2();
+        RxJavaDemo.getInstance().test3();
+        RxJavaDemo.getInstance().test4();
     }
 
     private void readConfigFromServer(){

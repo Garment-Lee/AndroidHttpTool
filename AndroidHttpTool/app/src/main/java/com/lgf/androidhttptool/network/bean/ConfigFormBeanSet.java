@@ -79,12 +79,5 @@ public class ConfigFormBeanSet implements Serializable {
         public String ronglian_fileserver_svr;
 
 
-
-
-
-
-
-
-
     }
 }
